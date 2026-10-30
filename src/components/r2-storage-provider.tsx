@@ -1,7 +1,7 @@
 'use client';
 
 import * as React from 'react';
-import { uploadImage } from '@Hashibutogarasu/utils/client';
+import { uploadImage } from '@karasu-lab/utils/client';
 
 interface R2StorageContextValue {
   imageApiUrl: string;

@@ -1,7 +1,7 @@
 'use client';
 
 import * as React from 'react';
-import { setSessionToken } from '@Hashibutogarasu/utils/client';
+import { setSessionToken } from '@karasu-lab/utils/client';
 import type { PopUpMenuUser } from './popup-menu';
 
 const SessionContext = React.createContext<PopUpMenuUser | null | undefined>(undefined);
@@ -29,7 +29,7 @@ interface GetSessionResponse {
 
 /**
  * Supplies the signed-in user to every descendant, and keeps `apiFetch`
- * (`@Hashibutogarasu/utils/client`) authenticated via `setSessionToken`.
+ * (`@karasu-lab/utils/client`) authenticated via `setSessionToken`.
  * Kept live via a single direct `GET /api/auth/get-session` call to
  * whichever app hosts better-auth — a cross-origin call to that app's own
  * domain, so it always sees that app's session cookie regardless of which
@@ -39,7 +39,7 @@ interface GetSessionResponse {
  * This is the single source of truth for "who is logged in": components
  * calling another app's API should use `apiFetch` rather than `fetch`, and
  * that other app's server should verify the token it attaches with
- * `verifyAppJwt` from `@Hashibutogarasu/utils/server` rather than
+ * `verifyAppJwt` from `@karasu-lab/utils/server` rather than
  * re-deriving session state from a forwarded `Cookie` header, which isn't
  * guaranteed to reach it.
  */
