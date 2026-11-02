@@ -1,18 +1,18 @@
-import { existsSync } from 'node:fs';
-import path from 'node:path';
-import { fileURLToPath } from 'node:url';
+import { existsSync } from "node:fs";
+import path from "node:path";
+import { fileURLToPath } from "node:url";
 
 const packageRoot = path.dirname(fileURLToPath(import.meta.url));
 
 const sourcePackages = [
-  '@karasu-lab/ui',
-  '@karasu-lab/utils',
-  '@karasu-lab/types',
-  '@karasu-lab/flags',
-  '@karasu-lab/db',
-  '@karasu-lab/api-permissions',
-  '@karasu-lab/challengetoken',
-  '@karasu-lab/sdk',
+    "@karasu-lab/ui",
+    "@karasu-lab/utils",
+    "@karasu-lab/types",
+    "@karasu-lab/flags",
+    "@karasu-lab/db",
+    "@karasu-lab/api-permissions",
+    "@karasu-lab/challengetoken",
+    "@karasu-lab/sdk",
 ];
 
 /**
@@ -33,24 +33,38 @@ const sourcePackages = [
  *   `transpilePackages`.
  */
 export function withUi(nextConfig = {}) {
-  const installed = sourcePackages.filter((name) =>
-    existsSync(path.join(process.cwd(), 'node_modules', name, 'package.json')),
-  );
-  const transpilePackages = [...new Set([...(nextConfig.transpilePackages ?? []), ...installed])];
-  const userWebpack = nextConfig.webpack;
-  return {
-    ...nextConfig,
-    transpilePackages,
-    webpack(config, options) {
-      config.plugins.push(
-        new options.webpack.NormalModuleReplacementPlugin(/^@\//, (resource) => {
-          const context = (resource.context || '').replaceAll('\\', '/');
-          if (context.includes('/@karasu-lab/ui/')) {
-            resource.request = path.join(packageRoot, 'src', resource.request.slice(2));
-          }
-        }),
-      );
-      return userWebpack ? userWebpack(config, options) : config;
-    },
-  };
+    const installed = sourcePackages.filter((name) =>
+        existsSync(
+            path.join(process.cwd(), "node_modules", name, "package.json"),
+        ),
+    );
+    const transpilePackages = [
+        ...new Set([...(nextConfig.transpilePackages ?? []), ...installed]),
+    ];
+    const userWebpack = nextConfig.webpack;
+    return {
+        ...nextConfig,
+        transpilePackages,
+        webpack(config, options) {
+            config.plugins.push(
+                new options.webpack.NormalModuleReplacementPlugin(
+                    /^@\//,
+                    (resource) => {
+                        const context = (resource.context || "").replaceAll(
+                            "\\",
+                            "/",
+                        );
+                        if (context.includes("/@karasu-lab/ui/")) {
+                            resource.request = path.join(
+                                packageRoot,
+                                "src",
+                                resource.request.slice(2),
+                            );
+                        }
+                    },
+                ),
+            );
+            return userWebpack ? userWebpack(config, options) : config;
+        },
+    };
 }

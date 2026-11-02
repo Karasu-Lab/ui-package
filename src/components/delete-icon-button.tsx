@@ -1,13 +1,16 @@
-'use client';
+"use client";
 
-import * as React from 'react';
-import { Loader2, Trash2 } from 'lucide-react';
+import { Loader2, Trash2 } from "lucide-react";
+import * as React from "react";
 
-import { Button } from './button';
+import { Button } from "./button";
 
-interface DeleteIconButtonProps extends Omit<React.ComponentProps<typeof Button>, 'variant' | 'children'> {
-  /** When true, replaces the trash icon with an animated spinner and disables the button. */
-  loading?: boolean;
+interface DeleteIconButtonProps extends Omit<
+    React.ComponentProps<typeof Button>,
+    "variant" | "children"
+> {
+    /** When true, replaces the trash icon with an animated spinner and disables the button. */
+    loading?: boolean;
 }
 
 /**
@@ -15,12 +18,16 @@ interface DeleteIconButtonProps extends Omit<React.ComponentProps<typeof Button>
  * delete operation is in progress. Color is intentionally neutral (not red)
  * so it matches the surrounding UI without drawing extra attention.
  */
-function DeleteIconButton({ loading, disabled, ...props }: DeleteIconButtonProps) {
-  return (
-    <Button variant="ghost" disabled={loading || disabled} {...props}>
-      {loading ? <Loader2 className="animate-spin" /> : <Trash2 />}
-    </Button>
-  );
+function DeleteIconButton({
+    loading,
+    disabled,
+    ...props
+}: DeleteIconButtonProps) {
+    return (
+        <Button variant="ghost" disabled={loading || disabled} {...props}>
+            {loading ? <Loader2 className="animate-spin" /> : <Trash2 />}
+        </Button>
+    );
 }
 
 export { DeleteIconButton, type DeleteIconButtonProps };

@@ -1,5 +1,5 @@
-import type { ReactNode } from 'react';
-import { Redis } from 'ioredis';
+import { Redis } from "ioredis";
+import type { ReactNode } from "react";
 
 /**
  * ioredis opens a raw TCP socket and cannot run in the browser, and React
@@ -16,24 +16,27 @@ import { Redis } from 'ioredis';
  * has no browser build.
  */
 export interface RedisProviderProps {
-  /** Full Redis connection string, e.g. `redis://default:password@host:6379`. Server-only. */
-  redisURL: string;
-  children: ReactNode;
+    /** Full Redis connection string, e.g. `redis://default:password@host:6379`. Server-only. */
+    redisURL: string;
+    children: ReactNode;
 }
 
 let registeredRedisURL: string | undefined;
 let client: Redis | undefined;
 
 /** Registers the Redis connection URL for `useRedis()` and renders children unchanged. */
-export function RedisProvider({ redisURL, children }: RedisProviderProps): ReactNode {
-  registeredRedisURL = redisURL;
-  return children;
+export function RedisProvider({
+    redisURL,
+    children,
+}: RedisProviderProps): ReactNode {
+    registeredRedisURL = redisURL;
+    return children;
 }
 
 export interface UseRedisResult {
-  get: (key: string) => Promise<string | null>;
-  set: (key: string, value: string, ttlSeconds?: number) => Promise<void>;
-  del: (key: string) => Promise<void>;
+    get: (key: string) => Promise<string | null>;
+    set: (key: string, value: string, ttlSeconds?: number) => Promise<void>;
+    del: (key: string) => Promise<void>;
 }
 
 /**
@@ -46,26 +49,28 @@ export interface UseRedisResult {
  * cannot run in the browser.
  */
 export function useRedis(redisURL?: string): UseRedisResult {
-  const url = redisURL ?? registeredRedisURL;
-  if (!url) {
-    throw new Error('useRedis requires a redisURL argument, or must be called within a RedisProvider tree');
-  }
-  if (!client) {
-    client = new Redis(url);
-  }
-  const activeClient = client;
+    const url = redisURL ?? registeredRedisURL;
+    if (!url) {
+        throw new Error(
+            "useRedis requires a redisURL argument, or must be called within a RedisProvider tree",
+        );
+    }
+    if (!client) {
+        client = new Redis(url);
+    }
+    const activeClient = client;
 
-  return {
-    get: (key) => activeClient.get(key),
-    set: async (key, value, ttlSeconds) => {
-      if (ttlSeconds) {
-        await activeClient.set(key, value, 'EX', ttlSeconds);
-      } else {
-        await activeClient.set(key, value);
-      }
-    },
-    del: async (key) => {
-      await activeClient.del(key);
-    },
-  };
+    return {
+        get: (key) => activeClient.get(key),
+        set: async (key, value, ttlSeconds) => {
+            if (ttlSeconds) {
+                await activeClient.set(key, value, "EX", ttlSeconds);
+            } else {
+                await activeClient.set(key, value);
+            }
+        },
+        del: async (key) => {
+            await activeClient.del(key);
+        },
+    };
 }
