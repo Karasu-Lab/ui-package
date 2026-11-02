@@ -1,32 +1,32 @@
-'use client';
+"use client";
 
-import { Button } from './button';
-import { UserIcon } from './user-icon';
-import { PopUpMenu } from './popup-menu';
-import { DropdownMenuItem } from './ui/dropdown-menu';
-import { useSessionUser } from './session-provider';
+import { Button } from "./button";
+import { PopUpMenu } from "./popup-menu";
+import { useSessionUser } from "./session-provider";
+import { DropdownMenuItem } from "./ui/dropdown-menu";
+import { UserIcon } from "./user-icon";
 
 export interface AccountMenuLabels {
-  signIn?: string;
-  settings?: string;
-  signOut?: string;
+    signIn?: string;
+    settings?: string;
+    signOut?: string;
 }
 
 export interface AccountMenuProps {
-  /** Destination for the sign-in button. */
-  signInHref: string;
-  /** Destination for the "settings" menu item. */
-  settingsHref: string;
-  /** Invoked (as a form action) when the "sign out" menu item is submitted. */
-  onSignOut: () => void | Promise<void>;
-  labels?: AccountMenuLabels;
-  triggerAriaLabel?: string;
+    /** Destination for the sign-in button. */
+    signInHref: string;
+    /** Destination for the "settings" menu item. */
+    settingsHref: string;
+    /** Invoked (as a form action) when the "sign out" menu item is submitted. */
+    onSignOut: () => void | Promise<void>;
+    labels?: AccountMenuLabels;
+    triggerAriaLabel?: string;
 }
 
 const defaultLabels: Required<AccountMenuLabels> = {
-  signIn: 'サインイン',
-  settings: '設定',
-  signOut: 'サインアウト',
+    signIn: "サインイン",
+    settings: "設定",
+    signOut: "サインアウト",
 };
 
 /**
@@ -39,34 +39,45 @@ const defaultLabels: Required<AccountMenuLabels> = {
  * `SessionProvider` ancestor (see that component for how it stays live
  * across tabs).
  */
-export function AccountMenu({ signInHref, settingsHref, onSignOut, labels, triggerAriaLabel }: AccountMenuProps) {
-  const { signIn, settings, signOut } = { ...defaultLabels, ...labels };
-  const user = useSessionUser();
+export function AccountMenu({
+    signInHref,
+    settingsHref,
+    onSignOut,
+    labels,
+    triggerAriaLabel,
+}: AccountMenuProps) {
+    const { signIn, settings, signOut } = { ...defaultLabels, ...labels };
+    const user = useSessionUser();
 
-  if (!user) {
+    if (!user) {
+        return (
+            <Button
+                variant="outline"
+                size="sm"
+                onClick={() => {
+                    window.location.href = signInHref;
+                }}
+            >
+                {signIn}
+            </Button>
+        );
+    }
+
     return (
-      <Button
-        variant="outline"
-        size="sm"
-        onClick={() => {
-          window.location.href = signInHref;
-        }}
-      >
-        {signIn}
-      </Button>
+        <UserIcon user={user} triggerAriaLabel={triggerAriaLabel}>
+            <PopUpMenu>
+                <DropdownMenuItem render={<a href={settingsHref} />}>
+                    {settings}
+                </DropdownMenuItem>
+                <form action={onSignOut}>
+                    <DropdownMenuItem
+                        nativeButton={true}
+                        render={<button type="submit" className="w-full" />}
+                    >
+                        {signOut}
+                    </DropdownMenuItem>
+                </form>
+            </PopUpMenu>
+        </UserIcon>
     );
-  }
-
-  return (
-    <UserIcon user={user} triggerAriaLabel={triggerAriaLabel}>
-      <PopUpMenu>
-        <DropdownMenuItem render={<a href={settingsHref} />}>{settings}</DropdownMenuItem>
-        <form action={onSignOut}>
-          <DropdownMenuItem nativeButton={true} render={<button type="submit" className="w-full" />}>
-            {signOut}
-          </DropdownMenuItem>
-        </form>
-      </PopUpMenu>
-    </UserIcon>
-  );
 }

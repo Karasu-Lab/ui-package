@@ -1,30 +1,37 @@
-'use client';
+"use client";
 
-import * as React from 'react';
-import { setSessionToken } from '@karasu-lab/utils/client';
-import type { PopUpMenuUser } from './popup-menu';
+import { setSessionToken } from "@karasu-lab/utils/client";
+import * as React from "react";
+import type { PopUpMenuUser } from "./popup-menu";
 
-const SessionContext = React.createContext<PopUpMenuUser | null | undefined>(undefined);
+const SessionContext = React.createContext<PopUpMenuUser | null | undefined>(
+    undefined,
+);
 
 export interface SessionProviderProps {
-  /**
-   * Base URL of the better-auth instance, forwarded to the direct
-   * `get-session` fetch (see that function for when this is required).
-   * Passed as a plain string rather than an already-constructed client so
-   * this component's props stay serializable across the Server Component
-   * boundary.
-   */
-  baseURL?: string;
-  /**
-   * Server-rendered session user, shown until the client-side session fetch
-   * resolves, so there is no flash of signed-out UI on first paint.
-   */
-  initialUser: PopUpMenuUser | null;
-  children: React.ReactNode;
+    /**
+     * Base URL of the better-auth instance, forwarded to the direct
+     * `get-session` fetch (see that function for when this is required).
+     * Passed as a plain string rather than an already-constructed client so
+     * this component's props stay serializable across the Server Component
+     * boundary.
+     */
+    baseURL?: string;
+    /**
+     * Server-rendered session user, shown until the client-side session fetch
+     * resolves, so there is no flash of signed-out UI on first paint.
+     */
+    initialUser: PopUpMenuUser | null;
+    children: React.ReactNode;
 }
 
 interface GetSessionResponse {
-  user?: { id: string; email?: string | null; name?: string | null; image?: string | null } | null;
+    user?: {
+        id: string;
+        email?: string | null;
+        name?: string | null;
+        image?: string | null;
+    } | null;
 }
 
 /**
@@ -43,48 +50,63 @@ interface GetSessionResponse {
  * re-deriving session state from a forwarded `Cookie` header, which isn't
  * guaranteed to reach it.
  */
-export function SessionProvider({ baseURL, initialUser, children }: SessionProviderProps) {
-  const [user, setUser] = React.useState<PopUpMenuUser | null>(initialUser);
+export function SessionProvider({
+    baseURL,
+    initialUser,
+    children,
+}: SessionProviderProps) {
+    const [user, setUser] = React.useState<PopUpMenuUser | null>(initialUser);
 
-  React.useEffect(() => {
-    let cancelled = false;
+    React.useEffect(() => {
+        let cancelled = false;
 
-    async function loadSession() {
-      try {
-        const url = baseURL ? `${baseURL}/api/auth/get-session` : '/api/auth/get-session';
-        const res = await fetch(url, { credentials: 'include' });
-        if (cancelled) return;
+        async function loadSession() {
+            try {
+                const url = baseURL
+                    ? `${baseURL}/api/auth/get-session`
+                    : "/api/auth/get-session";
+                const res = await fetch(url, { credentials: "include" });
+                if (cancelled) return;
 
-        if (!res.ok) {
-          setSessionToken(null);
-          setUser(null);
-          return;
+                if (!res.ok) {
+                    setSessionToken(null);
+                    setUser(null);
+                    return;
+                }
+
+                const data = (await res.json()) as GetSessionResponse;
+                if (!data.user) {
+                    setSessionToken(null);
+                    setUser(null);
+                    return;
+                }
+
+                setSessionToken(res.headers.get("set-auth-jwt"));
+                setUser({
+                    uid: data.user.id,
+                    iconUrl: data.user.image ?? null,
+                    displayName: data.user.name ?? null,
+                    email: data.user.email ?? null,
+                });
+            } catch {
+                if (!cancelled) {
+                    setSessionToken(null);
+                    setUser(null);
+                }
+            }
         }
 
-        const data = (await res.json()) as GetSessionResponse;
-        if (!data.user) {
-          setSessionToken(null);
-          setUser(null);
-          return;
-        }
+        loadSession();
+        return () => {
+            cancelled = true;
+        };
+    }, [baseURL]);
 
-        setSessionToken(res.headers.get('set-auth-jwt'));
-        setUser({ uid: data.user.id, iconUrl: data.user.image ?? null, displayName: data.user.name ?? null, email: data.user.email ?? null });
-      } catch {
-        if (!cancelled) {
-          setSessionToken(null);
-          setUser(null);
-        }
-      }
-    }
-
-    loadSession();
-    return () => {
-      cancelled = true;
-    };
-  }, [baseURL]);
-
-  return <SessionContext.Provider value={user}>{children}</SessionContext.Provider>;
+    return (
+        <SessionContext.Provider value={user}>
+            {children}
+        </SessionContext.Provider>
+    );
 }
 
 /**
@@ -92,7 +114,8 @@ export function SessionProvider({ baseURL, initialUser, children }: SessionProvi
  * Throws when rendered outside one.
  */
 export function useSessionUser(): PopUpMenuUser | null {
-  const ctx = React.useContext(SessionContext);
-  if (ctx === undefined) throw new Error('useSessionUser must be used within a SessionProvider');
-  return ctx;
+    const ctx = React.useContext(SessionContext);
+    if (ctx === undefined)
+        throw new Error("useSessionUser must be used within a SessionProvider");
+    return ctx;
 }

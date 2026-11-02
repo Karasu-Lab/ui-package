@@ -1,16 +1,15 @@
-'use client';
+"use client";
 
-import * as React from 'react';
-import { Input } from './input';
-import { cn } from '../lib/utils';
+import { cn } from "../lib/utils";
+import { Input } from "./input";
 
 export interface TextInputMenuItemProps {
-  value: string;
-  onChange: (value: string) => void;
-  onSubmit: (value: string) => void;
-  placeholder?: string;
-  className?: string;
-  'aria-label'?: string;
+    value: string;
+    onChange: (value: string) => void;
+    onSubmit: (value: string) => void;
+    placeholder?: string;
+    className?: string;
+    "aria-label"?: string;
 }
 
 /**
@@ -23,22 +22,34 @@ export interface TextInputMenuItemProps {
  * propagation on every key as a second line of defense. Sticky positioning is
  * the caller's responsibility, not this component's.
  */
-export function TextInputMenuItem({ value, onChange, onSubmit, placeholder, className, ...ariaProps }: TextInputMenuItemProps) {
-  return (
-    <div className={cn('flex items-center gap-1.5 rounded-md px-1.5 py-1', className)}>
-      <Input
-        value={value}
-        placeholder={placeholder}
-        onChange={(e) => onChange(e.target.value)}
-        onKeyDown={(e) => {
-          e.stopPropagation();
-          if (e.key === 'Enter') {
-            e.preventDefault();
-            onSubmit(value);
-          }
-        }}
-        {...ariaProps}
-      />
-    </div>
-  );
+export function TextInputMenuItem({
+    value,
+    onChange,
+    onSubmit,
+    placeholder,
+    className,
+    ...ariaProps
+}: TextInputMenuItemProps) {
+    return (
+        <div
+            className={cn(
+                "flex items-center gap-1.5 rounded-md px-1.5 py-1",
+                className,
+            )}
+        >
+            <Input
+                value={value}
+                placeholder={placeholder}
+                onChange={(e) => onChange(e.target.value)}
+                onKeyDown={(e) => {
+                    e.stopPropagation();
+                    if (e.key === "Enter") {
+                        e.preventDefault();
+                        onSubmit(value);
+                    }
+                }}
+                {...ariaProps}
+            />
+        </div>
+    );
 }

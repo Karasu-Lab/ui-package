@@ -1,21 +1,25 @@
-'use client';
+"use client";
 
-import * as React from 'react';
-import { DropdownMenuSub, DropdownMenuSubTrigger, DropdownMenuSubContent } from './ui/dropdown-menu';
-import { cn } from '../lib/utils';
+import * as React from "react";
+import { cn } from "../lib/utils";
+import {
+    DropdownMenuSub,
+    DropdownMenuSubContent,
+    DropdownMenuSubTrigger,
+} from "./ui/dropdown-menu";
 
 export interface ScrollableSubMenuProps {
-  trigger: React.ReactNode;
-  pinned?: React.ReactNode;
-  onLoadMore: () => void;
-  triggerClassName?: string;
-  /**
-   * CSS `max-height` value for the popup. Defaults to 70% of the viewport
-   * height, capped at `--available-height` (the space actually free between
-   * the trigger and the viewport edge) so it never overflows the screen.
-   */
-  maxHeight?: string;
-  children: React.ReactNode;
+    trigger: React.ReactNode;
+    pinned?: React.ReactNode;
+    onLoadMore: () => void;
+    triggerClassName?: string;
+    /**
+     * CSS `max-height` value for the popup. Defaults to 70% of the viewport
+     * height, capped at `--available-height` (the space actually free between
+     * the trigger and the viewport edge) so it never overflows the screen.
+     */
+    maxHeight?: string;
+    children: React.ReactNode;
 }
 
 /**
@@ -47,56 +51,66 @@ export interface ScrollableSubMenuProps {
  * when the sentinel node actually appears.
  */
 export function ScrollableSubMenu({
-  trigger,
-  pinned,
-  onLoadMore,
-  triggerClassName,
-  maxHeight = 'min(70vh, var(--available-height))',
-  children,
+    trigger,
+    pinned,
+    onLoadMore,
+    triggerClassName,
+    maxHeight = "min(70vh, var(--available-height))",
+    children,
 }: ScrollableSubMenuProps) {
-  const sentinelRef = React.useRef<HTMLDivElement | null>(null);
-  const observerRef = React.useRef<IntersectionObserver | null>(null);
-  const onLoadMoreRef = React.useRef(onLoadMore);
-  onLoadMoreRef.current = onLoadMore;
+    const sentinelRef = React.useRef<HTMLDivElement | null>(null);
+    const observerRef = React.useRef<IntersectionObserver | null>(null);
+    const onLoadMoreRef = React.useRef(onLoadMore);
+    onLoadMoreRef.current = onLoadMore;
 
-  const attachSentinel = React.useCallback((node: HTMLDivElement | null) => {
-    observerRef.current?.disconnect();
-    observerRef.current = null;
-    sentinelRef.current = node;
-    if (!node) return;
+    const attachSentinel = React.useCallback((node: HTMLDivElement | null) => {
+        observerRef.current?.disconnect();
+        observerRef.current = null;
+        sentinelRef.current = node;
+        if (!node) return;
 
-    const root = node.closest<HTMLElement>('[data-slot="dropdown-menu-sub-content"]');
-    const observer = new IntersectionObserver(
-      (entries) => {
-        if (entries[0]?.isIntersecting) {
-          onLoadMoreRef.current();
-        }
-      },
-      { root }
+        const root = node.closest<HTMLElement>(
+            '[data-slot="dropdown-menu-sub-content"]',
+        );
+        const observer = new IntersectionObserver(
+            (entries) => {
+                if (entries[0]?.isIntersecting) {
+                    onLoadMoreRef.current();
+                }
+            },
+            { root },
+        );
+        observer.observe(node);
+        observerRef.current = observer;
+    }, []);
+
+    React.useEffect(() => {
+        const sentinel = sentinelRef.current;
+        const observer = observerRef.current;
+        if (!sentinel || !observer) return;
+
+        observer.unobserve(sentinel);
+        observer.observe(sentinel);
+    });
+
+    return (
+        <DropdownMenuSub highlightItemOnHover={false}>
+            <DropdownMenuSubTrigger
+                openOnHover={false}
+                className={cn(
+                    "hover:bg-accent hover:text-accent-foreground",
+                    triggerClassName,
+                )}
+            >
+                {trigger}
+            </DropdownMenuSubTrigger>
+            <DropdownMenuSubContent style={{ maxHeight }}>
+                {pinned && (
+                    <div className="sticky top-0 z-10 bg-popover">{pinned}</div>
+                )}
+                {children}
+                <div ref={attachSentinel} aria-hidden="true" className="h-px" />
+            </DropdownMenuSubContent>
+        </DropdownMenuSub>
     );
-    observer.observe(node);
-    observerRef.current = observer;
-  }, []);
-
-  React.useEffect(() => {
-    const sentinel = sentinelRef.current;
-    const observer = observerRef.current;
-    if (!sentinel || !observer) return;
-
-    observer.unobserve(sentinel);
-    observer.observe(sentinel);
-  });
-
-  return (
-    <DropdownMenuSub highlightItemOnHover={false}>
-      <DropdownMenuSubTrigger openOnHover={false} className={cn('hover:bg-accent hover:text-accent-foreground', triggerClassName)}>
-        {trigger}
-      </DropdownMenuSubTrigger>
-      <DropdownMenuSubContent style={{ maxHeight }}>
-        {pinned && <div className="sticky top-0 z-10 bg-popover">{pinned}</div>}
-        {children}
-        <div ref={attachSentinel} aria-hidden="true" className="h-px" />
-      </DropdownMenuSubContent>
-    </DropdownMenuSub>
-  );
 }

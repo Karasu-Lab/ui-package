@@ -1,24 +1,24 @@
-'use client';
+"use client";
 
-import * as React from 'react';
-import { cn } from '../lib/utils';
-import { useDragAndDrop, type DragPayload } from './drag-and-drop-context';
+import * as React from "react";
+import { cn } from "../lib/utils";
+import { useDragAndDrop, type DragPayload } from "./drag-and-drop-context";
 
 export interface DragAndDropAreaProps {
-  id: string;
-  children?: React.ReactNode;
-  onDrop?: (payload: DragPayload) => void;
-  className?: string;
-  /** Set when this area already holds a dropped item, hiding the empty-state dashed border/faint content. */
-  filled?: boolean;
-  /** Minimum height, in pixels, the bottom-edge resize handle can shrink this area to. */
-  minHeight?: number;
-  /** Which side shows a width resize handle; omit for none. */
-  resizeEdge?: 'left' | 'right';
-  /** Minimum width, in pixels, the side resize handle can shrink this area to. */
-  minWidth?: number;
-  /** Upper bound, in pixels, the side resize handle can grow this area to — e.g. so it can't push the rest of the layout past the viewport. Read once when a drag starts; omit for no upper bound. */
-  getMaxWidth?: () => number;
+    id: string;
+    children?: React.ReactNode;
+    onDrop?: (payload: DragPayload) => void;
+    className?: string;
+    /** Set when this area already holds a dropped item, hiding the empty-state dashed border/faint content. */
+    filled?: boolean;
+    /** Minimum height, in pixels, the bottom-edge resize handle can shrink this area to. */
+    minHeight?: number;
+    /** Which side shows a width resize handle; omit for none. */
+    resizeEdge?: "left" | "right";
+    /** Minimum width, in pixels, the side resize handle can shrink this area to. */
+    minWidth?: number;
+    /** Upper bound, in pixels, the side resize handle can grow this area to — e.g. so it can't push the rest of the layout past the viewport. Read once when a drag starts; omit for no upper bound. */
+    getMaxWidth?: () => number;
 }
 
 /**
@@ -30,60 +30,82 @@ export interface DragAndDropAreaProps {
  * increasing screen coordinates grows or shrinks the element.
  */
 interface ResizeHandleProps {
-  /** Pointer axis this handle measures drag distance along. */
-  axis: 'x' | 'y';
-  /** Multiplies the raw pointer delta before adding it to the starting size — pass +1 when dragging toward increasing coordinates should grow the element, -1 when it should shrink it. */
-  sign: 1 | -1;
-  min: number;
-  /** Upper bound for the resulting size, read once when a drag starts. Omit for no upper bound. */
-  getMax?: () => number;
-  disabled?: boolean;
-  getSize: () => number;
-  onResize: (size: number) => void;
-  className?: string;
+    /** Pointer axis this handle measures drag distance along. */
+    axis: "x" | "y";
+    /** Multiplies the raw pointer delta before adding it to the starting size — pass +1 when dragging toward increasing coordinates should grow the element, -1 when it should shrink it. */
+    sign: 1 | -1;
+    min: number;
+    /** Upper bound for the resulting size, read once when a drag starts. Omit for no upper bound. */
+    getMax?: () => number;
+    disabled?: boolean;
+    getSize: () => number;
+    onResize: (size: number) => void;
+    className?: string;
 }
 
-function ResizeHandle({ axis, sign, min, getMax, disabled, getSize, onResize, className }: ResizeHandleProps) {
-  function handlePointerDown(event: React.PointerEvent<HTMLDivElement>) {
-    if (disabled) return;
-    event.stopPropagation();
-    const start = axis === 'x' ? event.clientX : event.clientY;
-    const startSize = getSize();
-    const max = getMax ? getMax() : Infinity;
+function ResizeHandle({
+    axis,
+    sign,
+    min,
+    getMax,
+    disabled,
+    getSize,
+    onResize,
+    className,
+}: ResizeHandleProps) {
+    function handlePointerDown(event: React.PointerEvent<HTMLDivElement>) {
+        if (disabled) return;
+        event.stopPropagation();
+        const start = axis === "x" ? event.clientX : event.clientY;
+        const startSize = getSize();
+        const max = getMax ? getMax() : Infinity;
 
-    function handleMove(moveEvent: PointerEvent) {
-      const current = axis === 'x' ? moveEvent.clientX : moveEvent.clientY;
-      onResize(Math.min(max, Math.max(min, startSize + sign * (current - start))));
+        function handleMove(moveEvent: PointerEvent) {
+            const current =
+                axis === "x" ? moveEvent.clientX : moveEvent.clientY;
+            onResize(
+                Math.min(
+                    max,
+                    Math.max(min, startSize + sign * (current - start)),
+                ),
+            );
+        }
+
+        function handleUp() {
+            window.removeEventListener("pointermove", handleMove);
+            window.removeEventListener("pointerup", handleUp);
+        }
+
+        window.addEventListener("pointermove", handleMove);
+        window.addEventListener("pointerup", handleUp);
     }
 
-    function handleUp() {
-      window.removeEventListener('pointermove', handleMove);
-      window.removeEventListener('pointerup', handleUp);
-    }
-
-    window.addEventListener('pointermove', handleMove);
-    window.addEventListener('pointerup', handleUp);
-  }
-
-  return (
-    <div
-      onPointerDown={handlePointerDown}
-      className={cn(
-        'group/resize absolute flex touch-none items-center justify-center',
-        axis === 'x' ? 'inset-y-0 w-2 pointer-coarse:w-6' : 'inset-x-0 h-2 pointer-coarse:h-6',
-        disabled ? 'pointer-events-none cursor-default' : axis === 'x' ? 'cursor-col-resize' : 'cursor-row-resize',
-        className
-      )}
-    >
-      <div
-        className={cn(
-          'rounded-full bg-foreground/0 transition-colors duration-200',
-          axis === 'x' ? 'h-8 w-1' : 'h-1 w-8',
-          !disabled && 'group-hover/resize:bg-foreground/30 pointer-coarse:bg-foreground/20'
-        )}
-      />
-    </div>
-  );
+    return (
+        <div
+            onPointerDown={handlePointerDown}
+            className={cn(
+                "group/resize absolute flex touch-none items-center justify-center",
+                axis === "x"
+                    ? "inset-y-0 w-2 pointer-coarse:w-6"
+                    : "inset-x-0 h-2 pointer-coarse:h-6",
+                disabled
+                    ? "pointer-events-none cursor-default"
+                    : axis === "x"
+                      ? "cursor-col-resize"
+                      : "cursor-row-resize",
+                className,
+            )}
+        >
+            <div
+                className={cn(
+                    "rounded-full bg-foreground/0 transition-colors duration-200",
+                    axis === "x" ? "h-8 w-1" : "h-1 w-8",
+                    !disabled &&
+                        "group-hover/resize:bg-foreground/30 pointer-coarse:bg-foreground/20",
+                )}
+            />
+        </div>
+    );
 }
 
 /**
@@ -123,69 +145,100 @@ function ResizeHandle({ axis, sign, min, getMax, disabled, getSize, onResize, cl
  * lives in.
  */
 export function DragAndDropArea({
-  id,
-  children,
-  onDrop,
-  className,
-  filled,
-  minHeight = 80,
-  resizeEdge,
-  minWidth = 160,
-  getMaxWidth,
+    id,
+    children,
+    onDrop,
+    className,
+    filled,
+    minHeight = 80,
+    resizeEdge,
+    minWidth = 160,
+    getMaxWidth,
 }: DragAndDropAreaProps) {
-  const ref = React.useRef<HTMLDivElement>(null);
-  const { disabled, hoveredAreaId, registerDropTarget, heights, setAreaHeight, setAreaWidth } = useDragAndDrop();
-  const isHovered = hoveredAreaId === id;
-  const height = heights[id];
+    const ref = React.useRef<HTMLDivElement>(null);
+    const {
+        disabled,
+        hoveredAreaId,
+        registerDropTarget,
+        heights,
+        setAreaHeight,
+        setAreaWidth,
+    } = useDragAndDrop();
+    const isHovered = hoveredAreaId === id;
+    const height = heights[id];
 
-  React.useEffect(() => registerDropTarget(id, onDrop), [id, onDrop, registerDropTarget]);
+    React.useEffect(
+        () => registerDropTarget(id, onDrop),
+        [id, onDrop, registerDropTarget],
+    );
 
-  return (
-    <div
-      ref={ref}
-      data-slot="drag-and-drop-area"
-      data-dnd-drop-target-id={id}
-      data-hovered={isHovered ? '' : undefined}
-      style={height !== undefined ? { height, alignSelf: 'start' } : undefined}
-      className={cn(
-        'relative flex items-center justify-center overflow-hidden rounded-[32px] transition-colors duration-200',
-        filled ? 'border-2 border-transparent' : cn('border-2 border-dashed p-6', disabled ? 'border-foreground/0' : 'border-foreground/15'),
-        'data-hovered:border-foreground/60 data-hovered:bg-foreground/5',
-        className
-      )}
-    >
-      <div
-        className={cn(
-          'transition-opacity duration-200',
-          filled ? 'h-full w-full' : undefined,
-          filled ? 'opacity-100' : disabled ? 'opacity-0' : isHovered ? 'opacity-100' : 'opacity-40'
-        )}
-      >
-        {children}
-      </div>
-      {!filled && (
-        <ResizeHandle
-          axis="y"
-          sign={1}
-          min={minHeight}
-          disabled={disabled}
-          getSize={() => ref.current?.getBoundingClientRect().height ?? minHeight}
-          onResize={(size) => setAreaHeight(id, size)}
-          className="bottom-0"
-        />
-      )}
-      {resizeEdge && (
-        <ResizeHandle
-          axis="x"
-          sign={resizeEdge === 'right' ? 1 : -1}
-          min={minWidth}
-          getMax={getMaxWidth}
-          disabled={disabled}
-          getSize={() => ref.current?.getBoundingClientRect().width ?? minWidth}
-          onResize={(size) => setAreaWidth(id, size)}
-          className={resizeEdge === 'right' ? 'right-0' : 'left-0'}
-        />
-      )}
-    </div>
-  );
+    return (
+        <div
+            ref={ref}
+            data-slot="drag-and-drop-area"
+            data-dnd-drop-target-id={id}
+            data-hovered={isHovered ? "" : undefined}
+            style={
+                height !== undefined
+                    ? { height, alignSelf: "start" }
+                    : undefined
+            }
+            className={cn(
+                "relative flex items-center justify-center overflow-hidden rounded-[32px] transition-colors duration-200",
+                filled
+                    ? "border-2 border-transparent"
+                    : cn(
+                          "border-2 border-dashed p-6",
+                          disabled
+                              ? "border-foreground/0"
+                              : "border-foreground/15",
+                      ),
+                "data-hovered:border-foreground/60 data-hovered:bg-foreground/5",
+                className,
+            )}
+        >
+            <div
+                className={cn(
+                    "transition-opacity duration-200",
+                    filled ? "h-full w-full" : undefined,
+                    filled
+                        ? "opacity-100"
+                        : disabled
+                          ? "opacity-0"
+                          : isHovered
+                            ? "opacity-100"
+                            : "opacity-40",
+                )}
+            >
+                {children}
+            </div>
+            {!filled && (
+                <ResizeHandle
+                    axis="y"
+                    sign={1}
+                    min={minHeight}
+                    disabled={disabled}
+                    getSize={() =>
+                        ref.current?.getBoundingClientRect().height ?? minHeight
+                    }
+                    onResize={(size) => setAreaHeight(id, size)}
+                    className="bottom-0"
+                />
+            )}
+            {resizeEdge && (
+                <ResizeHandle
+                    axis="x"
+                    sign={resizeEdge === "right" ? 1 : -1}
+                    min={minWidth}
+                    getMax={getMaxWidth}
+                    disabled={disabled}
+                    getSize={() =>
+                        ref.current?.getBoundingClientRect().width ?? minWidth
+                    }
+                    onResize={(size) => setAreaWidth(id, size)}
+                    className={resizeEdge === "right" ? "right-0" : "left-0"}
+                />
+            )}
+        </div>
+    );
 }
