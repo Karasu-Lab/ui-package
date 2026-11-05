@@ -103,7 +103,7 @@ export {
     type R2StorageProviderProps,
     type UseR2StorageResult,
 } from "./components/r2-storage-provider";
-export { RadioGroup, RadioGroupItem } from "./components/radio-group";
+export { RadioGroup, RadioGroupItem } from "./components/ui/radio-group";
 export {
     ScrollableSubMenu,
     type ScrollableSubMenuProps,
