@@ -1,4 +1,4 @@
-import { test, expect } from "@playwright/experimental-ct-react";
+import { expect, test } from "@playwright/experimental-ct-react";
 import { NestedDialogs } from "./dialog.stories";
 
 test("nested dialog renders its own backdrop over the first dialog", async ({
