@@ -18,6 +18,7 @@ export {
     CardTitle,
 } from "./components/card";
 export { Checkbox } from "./components/checkbox";
+export { RadioGroup, RadioGroupItem } from "./components/radio-group";
 export {
     Collapsible,
     CollapsibleChevron,
