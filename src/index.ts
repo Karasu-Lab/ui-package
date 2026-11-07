@@ -17,7 +17,6 @@ export {
     CardHeader,
     CardTitle,
 } from "./components/card";
-export { Checkbox } from "./components/checkbox";
 export {
     Collapsible,
     CollapsibleChevron,
@@ -153,6 +152,7 @@ export {
     type TurnstileHandle,
     type TurnstileProps,
 } from "./components/turnstile";
+export { Checkbox } from "./components/ui/checkbox";
 export {
     ContextMenu,
     ContextMenuContent,
