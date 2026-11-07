@@ -1,6 +1,6 @@
 "use client";
 
-import { setSessionToken } from "@karasu-lab/utils/client";
+import { setSessionToken } from "@/lib/api-fetch";
 import * as React from "react";
 import type { PopUpMenuUser } from "./popup-menu";
 
@@ -36,7 +36,7 @@ interface GetSessionResponse {
 
 /**
  * Supplies the signed-in user to every descendant, and keeps `apiFetch`
- * (`@karasu-lab/utils/client`) authenticated via `setSessionToken`.
+ * (`@/lib/api-fetch`) authenticated via `setSessionToken`.
  * Kept live via a single direct `GET /api/auth/get-session` call to
  * whichever app hosts better-auth — a cross-origin call to that app's own
  * domain, so it always sees that app's session cookie regardless of which
