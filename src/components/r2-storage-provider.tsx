@@ -1,6 +1,6 @@
 "use client";
 
-import { uploadImage } from "@karasu-lab/utils/client";
+import { uploadImage } from "@/lib/upload-image";
 import * as React from "react";
 
 interface R2StorageContextValue {
