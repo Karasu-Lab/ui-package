@@ -1,7 +1,7 @@
 "use client";
 
-import { uploadImage } from "@/lib/upload-image";
 import * as React from "react";
+import { uploadImage } from "../lib/upload-image";
 
 interface R2StorageContextValue {
     imageApiUrl: string;
