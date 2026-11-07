@@ -1,5 +1,6 @@
 "use client";
 
+import type { ReactNode } from "react";
 import { Button } from "./button";
 import { PopUpMenu } from "./popup-menu";
 import { useSessionUser } from "./session-provider";
@@ -13,14 +14,13 @@ export interface AccountMenuLabels {
 }
 
 export interface AccountMenuProps {
-    /** Destination for the sign-in button. */
     signInHref: string;
-    /** Destination for the "settings" menu item. */
     settingsHref: string;
-    /** Invoked (as a form action) when the "sign out" menu item is submitted. */
     onSignOut: () => void | Promise<void>;
     labels?: AccountMenuLabels;
     triggerAriaLabel?: string;
+    children?: ReactNode;
+    afterItems?: ReactNode;
 }
 
 const defaultLabels: Required<AccountMenuLabels> = {
@@ -29,22 +29,14 @@ const defaultLabels: Required<AccountMenuLabels> = {
     signOut: "サインアウト",
 };
 
-/**
- * Renders a sign-in button when unauthenticated, or an account dropdown menu
- * when authenticated. The dropdown shows the user's avatar, display name,
- * email address, a configurable settings link, and a configurable sign-out
- * action, so callers can point them at whichever app hosts settings/auth.
- *
- * The signed-in user is read via `useSessionUser`, which requires a
- * `SessionProvider` ancestor (see that component for how it stays live
- * across tabs).
- */
 export function AccountMenu({
     signInHref,
     settingsHref,
     onSignOut,
     labels,
     triggerAriaLabel,
+    children,
+    afterItems,
 }: AccountMenuProps) {
     const { signIn, settings, signOut } = { ...defaultLabels, ...labels };
     const user = useSessionUser();
@@ -66,6 +58,7 @@ export function AccountMenu({
     return (
         <UserIcon user={user} triggerAriaLabel={triggerAriaLabel}>
             <PopUpMenu>
+                {children}
                 <DropdownMenuItem render={<a href={settingsHref} />}>
                     {settings}
                 </DropdownMenuItem>
@@ -77,6 +70,7 @@ export function AccountMenu({
                         {signOut}
                     </DropdownMenuItem>
                 </form>
+                {afterItems}
             </PopUpMenu>
         </UserIcon>
     );
