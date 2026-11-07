@@ -1,7 +1,7 @@
 "use client";
 
-import { setSessionToken } from "../lib/api-fetch";
 import * as React from "react";
+import { setSessionToken } from "../lib/api-fetch";
 import type { PopUpMenuUser } from "./popup-menu";
 
 const SessionContext = React.createContext<PopUpMenuUser | null | undefined>(
