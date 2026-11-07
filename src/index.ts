@@ -153,6 +153,7 @@ export {
     type TurnstileHandle,
     type TurnstileProps,
 } from "./components/turnstile";
+export { Checkbox } from "./components/ui/checkbox";
 export {
     ContextMenu,
     ContextMenuContent,
@@ -202,7 +203,6 @@ export {
     PaginationNext,
     PaginationPrevious,
 } from "./components/ui/pagination";
-export { Checkbox } from "./components/ui/checkbox";
 export { RadioGroup, RadioGroupItem } from "./components/ui/radio-group";
 export { ScrollArea, ScrollBar } from "./components/ui/scroll-area";
 export {
