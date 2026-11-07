@@ -15,7 +15,7 @@ export interface AccountMenuLabels {
 
 export interface AccountMenuProps {
     signInHref: string;
-    settingsHref: string;
+    settingsHref?: string;
     onSignOut: () => void | Promise<void>;
     labels?: AccountMenuLabels;
     triggerAriaLabel?: string;
@@ -59,9 +59,11 @@ export function AccountMenu({
         <UserIcon user={user} triggerAriaLabel={triggerAriaLabel}>
             <PopUpMenu>
                 {children}
-                <DropdownMenuItem render={<a href={settingsHref} />}>
-                    {settings}
-                </DropdownMenuItem>
+                {settingsHref && (
+                    <DropdownMenuItem render={<a href={settingsHref} />}>
+                        {settings}
+                    </DropdownMenuItem>
+                )}
                 <form action={onSignOut}>
                     <DropdownMenuItem
                         nativeButton={true}
