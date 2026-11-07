@@ -17,7 +17,6 @@ export {
     CardHeader,
     CardTitle,
 } from "./components/card";
-export { Checkbox } from "./components/checkbox";
 export {
     Collapsible,
     CollapsibleChevron,
