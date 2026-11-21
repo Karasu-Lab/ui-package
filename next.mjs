@@ -9,7 +9,6 @@ const sourcePackages = [
     "@karasu-lab/utils",
     "@karasu-lab/types",
     "@karasu-lab/flags",
-    "@karasu-lab/db",
     "@karasu-lab/api-permissions",
     "@karasu-lab/challengetoken",
     "@karasu-lab/sdk",
